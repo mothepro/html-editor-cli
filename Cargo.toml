@@ -7,4 +7,4 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4.1.1", features = ["derive"] }
-html_editor = "0.5.2"
+html_editor = "0.6.1"

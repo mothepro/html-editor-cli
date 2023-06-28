@@ -97,9 +97,9 @@ dependencies = [
 
 [[package]]
 name = "html_editor"
-version = "0.5.2"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "956274d4a7c51572d2a27ff5be59bc14c500c679d9f0adb5cb7221e0911df56d"
+checksum = "2d80d1f51964cec994bd347e86d0dc9a1b21a0dfb4bbbe9a14ace84cda244e21"
 
 [[package]]
 name = "io-lifetimes"
