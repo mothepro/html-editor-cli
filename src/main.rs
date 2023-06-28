@@ -1,5 +1,5 @@
 use clap::Parser;
-use html_editor::{operation::*};
+use html_editor::operation::*;
 use html_editor::{parse, Node};
 
 use std::io::{self, BufRead};
@@ -8,22 +8,22 @@ use std::io::{self, BufRead};
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-   /// Document query for the element to replace
-   #[arg(short, long)]
-   query: String,
+    /// Document query for the element to replace.
+    #[arg(short, long)]
+    query: String,
 
-   /// The attribute to replace with this value
-   /// if it is not set, use the innerHTML
-   #[arg(short, long)]
-   attribute: String,
+    /// The attribute to be given the new content.
+    /// If left unset, the content will replace the element's children.
+    #[arg(short, long)]
+    attribute: Option<String>,
 
-   /// The content to be replaced with
-   #[arg(short, long)]
-   content: String,
+    /// The content to use in the replacement.
+    #[arg(short, long)]
+    content: String,
 }
 
 fn main() {
-   let args = Args::parse();
+    let args = Args::parse();
 
     let mut input = String::new();
     for line in io::stdin().lock().lines() {
@@ -32,31 +32,23 @@ fn main() {
         }
     }
 
-    let dom = parse(&input).unwrap();
-    let selector = Selector::from(&args.query);
+    let mut dom = parse(&input).unwrap();
+    let query = args.query.as_str();
+    let selector = Selector::from(query);
 
-    println!("size = {}", dom.query_all(&selector).len());
-    for mut element in dom.query_all(&selector) {
-            println!("no a = {}\n", element.html());
-
+    dom.execute_for(&selector, |element| {
         let value = args.content.to_owned();
-        let attr = args.attribute.to_owned();
-        if attr.is_empty() {
-            let inner_html_replacement = Node::new_element(
-                "span",
-                vec![],
-                vec![Node::Text(value)]
-            );
-            element.insert_to(&selector, inner_html_replacement);
-            println!("no a = {}", element.html());
 
-        }else {
-            println!("a({}) = {}",attr, element.html());
-            element.attrs.push((attr, value));
-            println!("a({}) = {}",element.attrs.len(), element.html());
-
+        if args.attribute.is_some() {
+            let attr = args.attribute.as_ref().unwrap().to_owned();
+            let mut new_attr = vec![(attr, value)];
+            element.attrs.append(&mut new_attr);
+        } else {
+            let mut new_child = vec![Node::Text(value)];
+            element.children.clear();
+            element.children.append(&mut new_child);
         }
-    }
+    });
 
     println!("{}", dom.html());
 }
